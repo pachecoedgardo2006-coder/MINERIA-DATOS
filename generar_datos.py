@@ -2,101 +2,98 @@ import pandas as pd
 import numpy as np
 import random
 
-# Fijamos una semilla para que, cada vez que corras el código, salgan los mismos números
+# Set a seed so the random results are the same every time you run it
 np.random.seed(42)
-num_registros = 500
+num_records = 500
 
-# Creamos la estructura base (como una tabla de Excel vacía)
+# 1. Create an empty DataFrame (like a blank spreadsheet)
 df = pd.DataFrame()
 
-# Creamos una lista de números del 1 al 500 para identificar a cada estudiante
-df['id_estudiante'] = range(1, num_registros + 1)
+# Generate unique IDs for each student
+df['student_id'] = range(1, num_records + 1)
 
-# Generamos edades aleatorias entre 17 y 25 años
-edades = np.random.randint(17, 26, size=num_registros).tolist()
-# Aquí metemos "ruido": elegimos 10 posiciones al azar y ponemos edades ilógicas (5, 85, 99)
-for i in range(10): 
-    edades[random.randint(0, 499)] = random.choice([5, 85, 99])
+# Generate Age with some outliers (extreme values)
+# Most students are between 17 and 25, but we inject some "noise"
+ages = np.random.randint(17, 26, size=num_records).tolist()
+for i in range(10): # Inject 10 illogical values (child or elderly)
+    ages[random.randint(0, 499)] = random.choice([5, 85, 99])
 
-df['edad'] = edades
+df['age'] = ages
 
-# Creamos notas promedio entre 1.0 y 5.0, redondeadas a dos decimales
-df['promedio'] = np.round(np.random.uniform(1.0, 5.0, num_registros), 2)
+# 2. Academic Variable: GPA (0.0 to 5.0 scale)
+df['gpa'] = np.round(np.random.uniform(1.0, 5.0, num_records), 2)
 
-# Simulamos olvidos en la base de datos: borramos el promedio de 15 estudiantes (valores nulos)
+# Introduce NULL VALUES (NaN) in GPA (15 missing records)
 for _ in range(15):
-    df.loc[random.randint(0, 499), 'promedio'] = np.nan
+    df.loc[random.randint(0, 499), 'gpa'] = np.nan
 
-# Generamos porcentajes de asistencia entre 40 y 100
-df['asistencia_pct'] = np.random.randint(40, 101, size=num_registros)
+# 3. Academic Variable: Attendance Percentage
+df['attendance_pct'] = np.random.randint(40, 101, size=num_records)
 
-# Creamos ingresos familiares promedio de 1.5 millones
-ingresos = np.random.normal(1500000, 500000, num_registros).astype(int)
-# Metemos otros valores atípicos: 5 estudiantes con ingresos exagerados de 50 millones
-for i in range(5): 
-    ingresos[random.randint(0, 499)] = 50000000 
+# 4. Financial Variable: Monthly Income
+# Generate normal income with some "Millionaire" outliers
+income = np.random.normal(1500000, 500000, num_records).astype(int)
+for i in range(5): # 5 cases of extreme wealth or typing errors
+    income[random.randint(0, 499)] = 50000000 
     
-df['ingreso_mensual'] = ingresos
+df['monthly_income'] = income
 
-# Asignamos becas de forma aleatoria: el 30% tiene y el 70% no
-df['tiene_beca'] = np.random.choice(['Si', 'No'], size=num_registros, p=[0.3, 0.7])
+# 5. Categorical Variable: Scholarship Status
+df['has_scholarship'] = np.random.choice(['Yes', 'No'], size=num_records, p=[0.3, 0.7])
 
-# Definimos una lógica para decidir quién abandona la escuela
-def calcular_abandono(row):
-    score = 0
-    # Si no tiene nota o es muy baja, suma puntos de riesgo
-    if pd.isna(row['promedio']) or row['promedio'] < 3.0:
-        score += 2
-    # Si falta mucho a clases, suma más riesgo
-    if row['asistencia_pct'] < 70:
-        score += 2
-    # Si no tiene apoyo económico (beca), suma un punto de riesgo
-    if row['tiene_beca'] == 'No':
-        score += 1
+# 6. Target Variable: Dropout (Yes/No)
+# Logic: Students with low GPA or low attendance have a higher risk of dropping out
+def calculate_dropout(row):
+    risk_score = 0
+    # Higher risk if GPA is missing or below 3.0
+    if pd.isna(row['gpa']) or row['gpa'] < 3.0:
+        risk_score += 2
+    # Higher risk if attendance is below 70%
+    if row['attendance_pct'] < 70:
+        risk_score += 2
+    # Moderate risk if they don't have a scholarship
+    if row['has_scholarship'] == 'No':
+        risk_score += 1
         
-    # Si acumuló mucho riesgo, tiene 80% de probabilidad de irse; si no, solo 10%
-    if score >= 3:
-        return np.random.choice(['Si', 'No'], p=[0.8, 0.2])
+    # High risk score = 80% chance of Dropout; Low risk = 10% chance
+    if risk_score >= 3:
+        return np.random.choice(['Yes', 'No'], p=[0.8, 0.2])
     else:
-        return np.random.choice(['Si', 'No'], p=[0.1, 0.9])
+        return np.random.choice(['Yes', 'No'], p=[0.1, 0.9])
 
-# Aplicamos la lógica anterior a cada fila de nuestra tabla
-df['abandono'] = df.apply(calcular_abandono, axis=1)
+df['dropout'] = df.apply(calculate_dropout, axis=1)
 
-# Guardamos todo nuestro trabajo en un archivo CSV llamado igual que en la tarea
-nombre_archivo = "dataset_abandono_escolar.csv"
-df.to_csv(nombre_archivo, index=False, encoding='utf-8')
+# Step 7: Export to CSV
+file_name = "school_dropout_dataset.csv"
+df.to_csv(file_name, index=False, encoding='utf-8')
 
-# --- BLOQUE DE IMPRESIÓN EN CONSOLA ---
-# Esto solo sirve para que tú (o el profe) vean un resumen bonito al terminar
-print(f"✅ ¡Dataset generado con éxito!: {nombre_archivo}")
+# --- FORMATTED TERMINAL REPORT ---
+print("\n" + "="*55)
+print("       📊 SYNTHETIC DATA GENERATION REPORT")
+print("="*55)
 
-print("\n" + "="*50)
-print("       📊 REPORTE DE GENERACIÓN DE DATOS")
-print("="*50)
+print(f"✅ File saved as: {file_name}")
+print(f"👥 Total records: {len(df)}")
+print("-"*55)
 
-print(f"✅ Archivo guardado: {nombre_archivo}")
-print(f"👥 Total de registros: {len(df)}")
-print("-"*50)
+# Quality check for Null Values
+print("🔍 Data Quality Check (Null Values):")
+nulls = df.isnull().sum()
+for col, count in nulls.items():
+    status = "❌" if count > 0 else "✅"
+    print(f"   {status} {col.ljust(18)}: {count} nulls")
 
-# Revisamos cuántos huecos vacíos (nulos) quedaron en cada columna
-print("🔍 Verificación de Calidad (Valores Nulos):")
-nulos = df.isnull().sum()
-for col, cant in nulos.items():
-    estado = "❌" if cant > 0 else "✅"
-    print(f"   {estado} {col.ljust(15)}: {cant} nulos")
+print("-"*55)
 
-print("-"*50)
+# Distribution of the Target Variable
+print("📈 Target Variable Distribution (Dropout):")
+counts = df['dropout'].value_counts()
+for label, total in counts.items():
+    percentage = (total / len(df)) * 100
+    print(f"   - {label}: {total} ({percentage:.1f}%)")
 
-# Contamos cuántos estudiantes abandonaron y cuántos no
-print("📈 Distribución de la Variable de Salida (Abandono):")
-conteo = df['abandono'].value_counts()
-for label, total in conteo.items():
-    porcentaje = (total / len(df)) * 100
-    print(f"   - {label}: {total} ({porcentaje:.1f}%)")
-
-# Mostramos las primeras 5 filas para verificar que todo se ve bien
-print("-"*50)
-print("📋 Vista previa de los primeros 5 registros:")
+# Esthetic preview of the data
+print("-"*55)
+print("📋 Data Preview (First 5 records):")
 print(df.head().to_string(index=False))
-print("="*50 + "\n")
+print("="*55 + "\n")

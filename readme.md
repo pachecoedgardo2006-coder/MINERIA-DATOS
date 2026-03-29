@@ -1,47 +1,54 @@
-# Dataset Sintético de Abandono Escolar 🎓
+# School Dropout Synthetic Dataset 🎓
 
-Este repositorio contiene un conjunto de datos sintéticos generado en Python diseñado para simular y analizar los factores que influyen en el abandono escolar. El proyecto cumple con los requisitos académicos de generación de datos, inclusión de ruidos (nulos/atípicos) y análisis de variables.
+This repository contains a synthetic dataset generated using Python, designed to simulate and analyze the factors influencing school dropout rates. This project fulfills academic requirements for data generation, noise inclusion (nulls/outliers), and variable analysis.
 
-## 📊 Descripción del Conjunto de Datos
+## 📊 Dataset Description
 
-El dataset cuenta con **500 registros** y las siguientes variables:
+The dataset consists of **500 records** with the following variables:
 
-| Variable | Tipo | Descripción | Rango/Valores |
+| Variable | Type | Description | Range/Values |
 | :--- | :--- | :--- | :--- |
-| `id_estudiante` | Entero | Identificador único del alumno. | 1 - 500 |
-| `edad` | Entero | Edad cronológica del estudiante. | 17 - 25 años (aprox.) |
-| `promedio` | Decimal | Calificación promedio acumulada (GPA). | 1.0 - 5.0 |
-| `asistencia_pct` | Entero | Porcentaje de asistencia a clases. | 40% - 100% |
-| `ingreso_mensual` | Entero | Ingreso familiar mensual (COP). | Distribución normal |
-| `tiene_beca` | Categórica | Indica si el alumno posee apoyo financiero. | Si / No |
-| `abandono` | Categórica | **Variable de salida** (Target). | Si / No |
+| `student_id` | Integer | Unique identifier for each student. | 1 - 500 |
+| `age` | Integer | Chronological age of the student. | ~17 - 25 years |
+| `gpa` | Decimal | Grade Point Average (Academic performance). | 1.0 - 5.0 |
+| `attendance_pct`| Integer | Percentage of classes attended. | 40% - 100% |
+| `monthly_income`| Integer | Monthly family income (local currency). | Normal Distribution |
+| `has_scholarship`| Categorical| Indicates if the student has financial aid. | Yes / No |
+| `dropout` | Categorical| **Target Variable** (Output). | Yes / No |
 
 ---
 
-## 🛠️ Metodología de Generación
+## 🛠️ Generation Methodology
 
-Para que el dataset sea realista y útil para pruebas de limpieza de datos, se aplicaron las siguientes técnicas:
+To make the dataset realistic and useful for data cleaning practice, the following techniques were applied:
 
-### 1. Introducción de Valores Nulos
-Se introdujeron deliberadamente valores nulos (`NaN`) en la columna `promedio`.
-* **Método:** Se seleccionaron 15 índices de forma aleatoria mediante `numpy` y se reemplazaron sus valores originales por nulos.
-* **Propósito:** Simular errores de captura o falta de información en el sistema académico.
+### 1. Introduction of Null Values
+Null values (`NaN`) were deliberately introduced into the `gpa` column.
+* **Method:** 15 indices were randomly selected using `numpy`, and their original values were replaced with nulls.
+* **Purpose:** To simulate data entry errors or missing information in the academic system.
 
-### 2. Valores Atípicos (Outliers)
-Se forzaron valores fuera de los rangos lógicos en dos variables clave:
-* **Edad:** Se insertaron valores extremos como **5, 85 y 99 años** en 10 registros aleatorios.
-* **Ingreso Mensual:** Se asignaron ingresos de **50.000.000** a 5 registros para simular casos atípicos de extrema riqueza o errores de digitación.
+### 2. Outliers (Extreme Values)
+Values outside of logical ranges were forced into two key variables:
+* **Age:** Extreme values such as **5, 85, and 99 years** were inserted into 10 random records.
+* **Monthly Income:** Incomes of **50,000,000** were assigned to 5 records to simulate extreme wealth or typing errors.
 
-### 3. Lógica de la Variable de Salida
-La variable `abandono` no es puramente aleatoria. Se utilizó una **función de probabilidad ponderada**:
-* Si un estudiante tiene un `promedio` bajo (< 3.0) o una `asistencia` menor al 70%, su probabilidad de abandono sube al **80%**.
-* En casos normales, la probabilidad de abandono se mantiene en un **10%**.
+### 3. Target Variable Logic
+The `dropout` variable is not purely random. A **weighted probability function** was used:
+* If a student has a low `gpa` (< 3.0), low `attendance_pct` (< 70%), or lacks a scholarship, their risk score increases.
+* Students with high risk scores have an **80% probability** of dropping out.
+* Normal cases maintain a baseline **10% dropout probability**.
 
 ---
 
-## 🚀 Cómo ejecutar el generador
+## 🚀 How to Run the Generator
 
-Si deseas replicar la generación de los datos, asegúrate de tener instalado `pandas` y `numpy`:
+To replicate the data generation, ensure you have `pandas` and `numpy` installed:
 
 ```bash
 pip install pandas numpy
+
+
+## member of the group:
+Mariana Cala
+Edgardo Pacheco
+Yairineth Camargo
